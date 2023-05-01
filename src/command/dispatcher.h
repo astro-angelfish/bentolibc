@@ -15,6 +15,5 @@ struct command_dispatcher * bentolibc_create_dispatcher(void);
 void bentolibc_dispatch_command(struct command_dispatcher * dispatcher, int len, char ** cmdline);
 void bentolibc_destroy_dispatcher(struct command_dispatcher * dispatcher);
 void bentolibc_register_command(struct command_dispatcher * dispatcher, struct command_info * cmd);
-enum dispatcher_result bentolibc_dispatcher_errno(struct command_dispatcher * dispatcher);
 
 #endif //BENTOLIBC_DISPATCHER_H
