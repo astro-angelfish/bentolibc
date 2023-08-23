@@ -23,7 +23,7 @@ make
 ./bentolibc patch /path/to/elf libc-id
 ```
 
-###### Usage in python
+###### Usage in Python
 ```python
 from pwn import *
 

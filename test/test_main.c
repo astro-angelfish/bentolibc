@@ -19,9 +19,6 @@ START_TEST(command_dispatcher)
     char * normal_request[] = { "normal" };
     bentolibc_dispatch_command(dispatcher, 1, normal_request);
 
-    char * error_request[] = { "errored" };
-    bentolibc_dispatch_command(dispatcher, 1, error_request);
-
     bentolibc_destroy_dispatcher(dispatcher);
 }
 END_TEST
@@ -35,8 +32,6 @@ TCase * craete_command_dispatcher_test_suite(void)
 
 int main(int argc, char ** argv)
 {
-    setvbuf(stdout, NULL, _IONBF, 0);
-
     Suite * test_suite = suite_create("bentolibc");
     SRunner * s_runner = srunner_create(test_suite);
 

@@ -23,9 +23,8 @@ void bentolibc_dispatch_command(struct command_dispatcher * dispatcher, int len,
         return;
     }
 
-    cmd->func(len - 1, &cmdline[1]);
+    cmd->func(len - 1, &cmdline[1]); // I tried to implement a C-style try catch. But who cares
 }
-#pragma clang diagnostic pop
 
 struct command_dispatcher * bentolibc_create_dispatcher(void)
 {
