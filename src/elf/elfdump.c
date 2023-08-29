@@ -177,6 +177,7 @@ static void dump_x86_elf(struct elf_data * target, void * data, Elf32_Ehdr heade
                     {
                         void* finder = target + 5;
 
+                        
                     }
                 }
             }
