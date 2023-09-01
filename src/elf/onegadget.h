@@ -39,7 +39,7 @@ struct one_gadget_t {
     struct constraint_t* constraints;
 };
 
-struct one_gadget_t* bentolibc_fetch_x86_one_gadget(void* data, size_t length, size_t* num_gadgets);
-struct one_gadget_t* bentolibc_fetch_x64_one_gadget(void* data, size_t length, size_t* num_gadgets);
+struct one_gadget_t* bentolibc_fetch_x86_one_gadget(void* data, size_t length, size_t base, size_t* num_gadgets);
+struct one_gadget_t* bentolibc_fetch_x64_one_gadget(void* data, size_t length, size_t base, size_t* num_gadgets);
 
 #endif //BENTOLIBC_ONEGADGET_H
