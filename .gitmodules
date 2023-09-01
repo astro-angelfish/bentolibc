@@ -1,3 +1,6 @@
 [submodule "hashmap.c"]
 	path = hashmap.c
 	url = https://github.com/tidwall/hashmap.c
+[submodule "fadec"]
+	path = fadec
+	url = git@github.com:astro-angelfish/fadec.git

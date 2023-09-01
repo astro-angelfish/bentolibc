@@ -8,7 +8,6 @@
 #include <sys/mman.h>
 #include <elf.h>
 #include <assert.h>
-#include <ucontext.h>
 #include <signal.h>
 
 // Reference: https://wiki.osdev.org/ELF_Tutorial
@@ -25,11 +24,6 @@ struct elf_data {
 struct symbol_data {
     char * name;
     unsigned long int address;
-};
-
-struct one_gadget_data {
-    unsigned long int address;
-    fpregset_t constraints;
 };
 
 int symbol_compare_name(const void * a, const void * b, void * udata)
@@ -140,46 +134,7 @@ static void dump_x86_elf(struct elf_data * target, void * data, Elf32_Ehdr heade
         {
             if (section_header.sh_flags & SHF_EXECINSTR) // Alright, go for one-gadgets
             {
-                // int 0x80 based syscall first
-                // Look for eax constraints
-                const char* eax_execve = "\xb8\x0b\x00\x00\x00";
-                const char* eax_execveat = "\xb8""f\x01\x00\x00";
 
-                void** possibilities = NULL;
-                unsigned int possibility_count = 0;
-
-                for (unsigned int j = 0; j < section_header.sh_size; j ++)
-                {
-                    void* instruction_check = data + section_header.sh_offset + j;
-                    if (!memcmp(instruction_check, eax_execve, 5))
-                    {
-                        possibilities = realloc(possibilities, sizeof(void*) * (possibility_count + 1));
-                        if (!possibilities)
-                            raise(SIGSEGV);
-
-                        possibilities[possibility_count ++] = instruction_check;
-                    }
-                    else if (!memcmp(instruction_check, eax_execveat, 5))
-                    {
-                        possibilities = realloc(possibilities, sizeof(void*) * (possibility_count + 1));
-                        if (!possibilities)
-                            raise(SIGSEGV);
-
-                        possibilities[possibility_count ++] = instruction_check;
-                    }
-                }
-
-                // Look for int 0x80 syscall by parsing instructions.
-                for (unsigned int j = 0; j < possibility_count; j ++)
-                {
-                    void* instruction_check = possibilities[j];
-                    for (unsigned int k = 0; true; k ++) // There are multiple conditions that can lead to a search ending.
-                    {
-                        void* finder = target + 5;
-
-                        
-                    }
-                }
             }
         }
     }

@@ -305,3 +305,7 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Fadec build items
+fadec/build/
+fadec/*.inc
