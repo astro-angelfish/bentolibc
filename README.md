@@ -21,6 +21,7 @@ make
 ./bentolibc find puts 0x756f7920
 ./bentolibc dump libc-id
 ./bentolibc patch /path/to/elf libc-id
+./bentolibc one-gaedget libc-id
 ```
 
 ###### Usage in Python
@@ -31,6 +32,8 @@ import sys
 sys.path.append("/path/to/bentolibc/python-package") # Bentolibc isn't registered in PIP yet.
 
 import bentolibc
+# Some other imports
+# ...
 
 sh = remote("114.51.4.191", 9810)
 elf = ELF("./rotten-orange")
@@ -40,10 +43,11 @@ elf = ELF("./rotten-orange")
 
 puts_addr = u64(sh.recv(8).ljust(8, b'\0'))
 libc = bentolibc.find("puts", puts_addr)
-system_addr = bentolibc.dump("system")
-binsh_addr = bentolibc.find("/bin/sh")
+system_addr = libc.dump("system")
+binsh_addr = libc.find("/bin/sh")
+onegadgets = libc.one_gadgets()
 
-# Do some post exploits
+# Do some exploits
 # ...
 
 sh.interactive()

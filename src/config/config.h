@@ -1,6 +1,7 @@
 #ifndef BENTOLIBC_CONFIG_H
 #define BENTOLIBC_CONFIG_H
 
+
 struct bentolibc_postgresql_config {
     char * url;
     char * username;

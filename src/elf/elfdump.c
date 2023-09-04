@@ -8,7 +8,6 @@
 #include <sys/mman.h>
 #include <elf.h>
 #include <assert.h>
-#include <signal.h>
 
 // Reference: https://wiki.osdev.org/ELF_Tutorial
 

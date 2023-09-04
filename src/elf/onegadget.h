@@ -3,40 +3,30 @@
 
 #include <stdlib.h>
 
+enum constraint_type_t {
+    CONSTRAINT_REG,
+    CONSTRAINT_MEM
+};
+
 struct constraint_t {
-    size_t type;
+    enum constraint_type_t type;
+
     union {
+        char* reg;
         struct {
-            char* reg;
-            size_t imm;
-        } reg_imm;
-        struct {
-            char* reg1;
-            char* reg2;
-        } reg_reg;
-        struct {
-            char* reg1;
-            char* reg_base;
+            char* base;
             size_t offset;
-        } reg_mem;
-        struct {
-            char* reg_base;
-            size_t offset;
-            size_t imm;
-        } mem_imm;
-        struct {
-            char* reg_base;
-            size_t offset;
-            char* reg_index;
-            size_t scale;
-        } mem_reg;
-    } data;
+        } mem;
+    };
+    size_t value;
 };
 
 struct one_gadget_t {
     unsigned long int address;
     size_t num_constraints;
     struct constraint_t* constraints;
+
+    size_t emulated_binsh_pos;
 };
 
 struct one_gadget_t* bentolibc_fetch_x86_one_gadget(void* data, size_t length, size_t base, size_t* num_gadgets);
