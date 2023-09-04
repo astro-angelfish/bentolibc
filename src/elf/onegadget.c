@@ -188,7 +188,7 @@ struct one_gadget_t* bentolibc_fetch_x86_one_gadget(void* data, size_t length, s
         }
 
         // Ok, got the registers we want to control
-        struct x86_reg_data eax, ebx, ecx, edx, esi, esp, ebp;
+        struct x86_reg_data eax, ebx, ecx, edx, esi, esp, ebp, eip;
         uc_reg_read(uc, UC_X86_REG_EAX, &eax);
         uc_reg_read(uc, UC_X86_REG_EBX, &ebx);
         uc_reg_read(uc, UC_X86_REG_ECX, &ecx);
@@ -196,6 +196,16 @@ struct one_gadget_t* bentolibc_fetch_x86_one_gadget(void* data, size_t length, s
         uc_reg_read(uc, UC_X86_REG_ESI, &esi);
         uc_reg_read(uc, UC_X86_REG_ESP, &esp);
         uc_reg_read(uc, UC_X86_REG_EBP, &ebp);
+        uc_reg_read(uc, UC_X86_REG_EIP, &eip);
+
+        char buf[2];
+        uc_mem_read(uc, eip.int_val, buf, 2);
+        if (memcmp(buf, "\xcd\x80", 2))
+        {
+            logger_error("Unable to dump one-gadgets: Final instruction at %p is not syscall", eip.int_val);
+            uc_fail = true;
+            goto uc_cleanup;
+        }
 
         struct one_gadget_t one_gadget = { 0 };
         switch (eax.int_val)
@@ -297,17 +307,15 @@ struct one_gadget_t* bentolibc_fetch_x86_one_gadget(void* data, size_t length, s
 
         if (uc_fail)
             goto cleanup;
-        else
+
+        result = realloc(result, sizeof(struct one_gadget_t) * (*num_gadgets + 1));
+        if (!result)
         {
-            result = realloc(result, sizeof(struct one_gadget_t) * (*num_gadgets + 1));
-            if (!result)
-            {
-                logger_error("Unable to dump one-gadgets: Unable to allocate memory: %s", strerror(errno));
-                goto cleanup;
-            }
-            result[*num_gadgets] = one_gadget;
-            (*num_gadgets) ++;
+            logger_error("Unable to dump one-gadgets: Unable to allocate memory: %s", strerror(errno));
+            goto cleanup;
         }
+        result[*num_gadgets] = one_gadget;
+        (*num_gadgets) ++;
     }
 
     cleanup:

@@ -7,6 +7,7 @@
 #include <string.h>
 #include <sys/mman.h>
 #include <elf.h>
+#include "onegadget.h"
 #include <assert.h>
 
 // Reference: https://wiki.osdev.org/ELF_Tutorial
@@ -18,6 +19,9 @@ struct elf_data {
 
     unsigned string_count;
     char ** string_table;
+
+    struct one_gadget_t* one_gadget;
+    size_t num_gadgets;
 };
 
 struct symbol_data {
@@ -58,6 +62,7 @@ static void dump_x86_elf(struct elf_data * target, void * data, Elf32_Ehdr heade
 
     void * ptr = data + header.e_shoff;
     Elf32_Shdr* section_headers = (Elf32_Shdr *) ptr;
+    target->num_gadgets = 0;
 
     for (unsigned int i = 0; i < header.e_shnum; i ++)
     {
@@ -130,12 +135,8 @@ static void dump_x86_elf(struct elf_data * target, void * data, Elf32_Ehdr heade
             assert(check_count == target->string_count);
         }
         else if (section_header.sh_type == SHT_PROGBITS)
-        {
             if (section_header.sh_flags & SHF_EXECINSTR) // Alright, go for one-gadgets
-            {
-
-            }
-        }
+                target->one_gadget = bentolibc_fetch_x86_one_gadget(data + section_header.sh_offset, section_header.sh_size, section_header.sh_addr, &target->num_gadgets);
     }
 }
 
@@ -227,13 +228,25 @@ struct elf_data * bentolibc_create_elf(char * name)
     return result;
 }
 
-unsigned long int bentolibc_get_symbol_info(struct elf_data * data, char * name);
-void bentolibc_put_symbol_info(struct elf_data * data, char * name, unsigned long int address);
+unsigned long int bentolibc_get_symbol_info(struct elf_data * data, char * name)
+{
+    return ((struct symbol_data *) hashmap_get(data->symbol_map, &(struct symbol_data) { .name = name }))->address;
+}
+void bentolibc_put_symbol_info(struct elf_data * data, char * name, unsigned long int address)
+{
+    hashmap_set(data->symbol_map, &(struct symbol_data) { .name = name, .address = address });
+}
 
 void bentolibc_destroy_elf(struct elf_data * data)
 {
     hashmap_free(data->reverse_symbol_map);
     hashmap_free(data->symbol_map);
+    for (unsigned int i = 0; i < data->string_count; i ++)
+        free(data->string_table[i]);
+    free(data->string_table);
+    for (unsigned int i = 0; i < data->num_gadgets; i ++)
+        free(data->one_gadget[i].constraints);
+    free(data->one_gadget);
     free(data->name);
     free(data);
 }
